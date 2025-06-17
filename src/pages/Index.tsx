@@ -15,6 +15,7 @@ import AgentEscalationTracker from '@/components/AgentEscalationTracker';
 import TrainingNeedsMatrix from '@/components/TrainingNeedsMatrix';
 import CallDurationChart from '@/components/CallDurationChart';
 import RetentionActionSuggestions from '@/components/RetentionActionSuggestions';
+import AgentTrainingRecommendations from '@/components/AgentTrainingRecommendations';
 import { CalendarDays, Users, TrendingUp, AlertTriangle, Target } from 'lucide-react';
 
 const Index = () => {
@@ -203,6 +204,10 @@ const Index = () => {
         
         <div className="mb-6">
           <TrainingNeedsMatrix data={filteredData} />
+        </div>
+        
+        <div className="mb-6">
+          <AgentTrainingRecommendations data={filteredData} />
         </div>
         
         <AgentPerformanceTable data={filteredData} />
