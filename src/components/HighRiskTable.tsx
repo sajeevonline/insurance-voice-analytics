@@ -42,7 +42,7 @@ const HighRiskTable: React.FC<HighRiskTableProps> = ({ data }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-red-600" />
-          High-Risk Unresolved Calls (Churn Risk > 70%)
+          High-Risk Unresolved Calls (Churn Risk {'>'}70%)
         </CardTitle>
       </CardHeader>
       <CardContent>
