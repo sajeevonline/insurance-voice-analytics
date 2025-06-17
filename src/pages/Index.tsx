@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,7 +11,11 @@ import AgentPerformanceTable from '@/components/AgentPerformanceTable';
 import EmotionHeatmap from '@/components/EmotionHeatmap';
 import KPICards from '@/components/KPICards';
 import HighRiskTable from '@/components/HighRiskTable';
-import { CalendarDays, Users, TrendingUp, AlertTriangle } from 'lucide-react';
+import AgentEscalationTracker from '@/components/AgentEscalationTracker';
+import TrainingNeedsMatrix from '@/components/TrainingNeedsMatrix';
+import CallDurationChart from '@/components/CallDurationChart';
+import RetentionActionSuggestions from '@/components/RetentionActionSuggestions';
+import { CalendarDays, Users, TrendingUp, AlertTriangle, Target } from 'lucide-react';
 
 const Index = () => {
   const [filters, setFilters] = useState({
@@ -155,6 +158,15 @@ const Index = () => {
       {/* KPI Cards */}
       <KPICards data={filteredData} />
 
+      {/* Retention Action Suggestions */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Target className="h-6 w-6" />
+          Retention Action Suggestions
+        </h2>
+        <RetentionActionSuggestions data={filteredData} />
+      </div>
+
       {/* Customer Analytics Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -183,6 +195,15 @@ const Index = () => {
           <TrendingUp className="h-6 w-6" />
           Agent & Operations Analytics
         </h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <AgentEscalationTracker data={filteredData} />
+          <CallDurationChart data={filteredData} />
+        </div>
+        
+        <div className="mb-6">
+          <TrainingNeedsMatrix data={filteredData} />
+        </div>
         
         <AgentPerformanceTable data={filteredData} />
       </div>
