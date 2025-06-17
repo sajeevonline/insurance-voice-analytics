@@ -7,18 +7,25 @@ interface EmotionHeatmapProps {
   data: CallRecord[];
 }
 
+interface EmotionRow {
+  emotion: string;
+  resolved: number;
+  unresolved: number;
+  escalated: number;
+}
+
 const EmotionHeatmap: React.FC<EmotionHeatmapProps> = ({ data }) => {
   const heatmapData = React.useMemo(() => {
     const emotions = ['anger', 'frustration', 'confusion', 'anxiety', 'sadness'];
     const outcomes = ['resolved', 'unresolved', 'escalated'];
     
-    const matrix = emotions.map(emotion => {
-      const row = { emotion };
+    const matrix: EmotionRow[] = emotions.map(emotion => {
+      const row: EmotionRow = { emotion, resolved: 0, unresolved: 0, escalated: 0 };
       outcomes.forEach(outcome => {
         const emotionCalls = data.filter(call => 
           call.emotions.includes(emotion) && call.outcome === outcome
         );
-        row[outcome] = emotionCalls.length;
+        row[outcome as keyof Omit<EmotionRow, 'emotion'>] = emotionCalls.length;
       });
       return row;
     });
@@ -35,7 +42,7 @@ const EmotionHeatmap: React.FC<EmotionHeatmapProps> = ({ data }) => {
   };
 
   const maxValue = Math.max(...heatmapData.flatMap(row => 
-    Object.values(row).filter(val => typeof val === 'number') as number[]
+    [row.resolved, row.unresolved, row.escalated]
   ));
 
   return (
