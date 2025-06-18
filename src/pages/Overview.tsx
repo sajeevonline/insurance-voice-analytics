@@ -1,16 +1,22 @@
 
 import React from 'react';
-import { callData } from '@/data/callData';
+import { useOutletContext } from 'react-router-dom';
 import KPICards from '@/components/KPICards';
 import SentimentChart from '@/components/SentimentChart';
 import TopicsChart from '@/components/TopicsChart';
 import RetentionActionSuggestions from '@/components/RetentionActionSuggestions';
-import { useFilters } from '@/hooks/useFilters';
 import { Activity, TrendingUp, Users, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CallRecord } from '@/data/callData';
+import { Filters } from '@/hooks/useFilters';
+
+interface OutletContext {
+  filteredData: CallRecord[];
+  filters: Filters;
+}
 
 const Overview = () => {
-  const { filteredData } = useFilters(callData);
+  const { filteredData } = useOutletContext<OutletContext>();
 
   // Calculate key metrics
   const totalCalls = filteredData.length;

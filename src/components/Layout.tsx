@@ -4,9 +4,13 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { BarChart3, Users, TrendingUp, Settings, Home, Menu } from 'lucide-react';
 import { useState } from 'react';
+import { useFilters } from '@/hooks/useFilters';
+import { callData } from '@/data/callData';
+import FilterPanel from '@/components/FilterPanel';
 
 const Layout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { filters, setFilters, filteredData } = useFilters(callData);
   
   const navItems = [
     { path: '/', label: 'Overview', icon: Home },
@@ -74,7 +78,13 @@ const Layout = () => {
       {/* Main Content */}
       <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
-          <Outlet />
+          {/* Filter Panel */}
+          <FilterPanel filters={filters} onFiltersChange={setFilters} />
+          
+          {/* Page Content with Filter Context */}
+          <div data-filtered-data={JSON.stringify(filteredData)}>
+            <Outlet context={{ filteredData, filters }} />
+          </div>
         </div>
       </main>
     </div>

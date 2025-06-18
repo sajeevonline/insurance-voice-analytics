@@ -1,13 +1,19 @@
 
 import React from 'react';
-import { callData } from '@/data/callData';
+import { useOutletContext } from 'react-router-dom';
 import AgentEscalationTracker from '@/components/AgentEscalationTracker';
 import CallDurationChart from '@/components/CallDurationChart';
 import { BarChart3, Clock, TrendingUp, AlertCircle } from 'lucide-react';
-import { useFilters } from '@/hooks/useFilters';
+import { CallRecord } from '@/data/callData';
+import { Filters } from '@/hooks/useFilters';
+
+interface OutletContext {
+  filteredData: CallRecord[];
+  filters: Filters;
+}
 
 const Operations = () => {
-  const { filteredData } = useFilters(callData);
+  const { filteredData } = useOutletContext<OutletContext>();
 
   // Calculate operational metrics
   const avgCallDuration = filteredData.reduce((sum, call) => sum + call.duration, 0) / filteredData.length;

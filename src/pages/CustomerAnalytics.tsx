@@ -1,16 +1,22 @@
 
 import React from 'react';
-import { callData } from '@/data/callData';
+import { useOutletContext } from 'react-router-dom';
 import SentimentChart from '@/components/SentimentChart';
 import ChurnTrendChart from '@/components/ChurnTrendChart';
 import TopicsChart from '@/components/TopicsChart';
 import EmotionHeatmap from '@/components/EmotionHeatmap';
 import HighRiskTable from '@/components/HighRiskTable';
 import { Users, Heart, TrendingDown, AlertTriangle } from 'lucide-react';
-import { useFilters } from '@/hooks/useFilters';
+import { CallRecord } from '@/data/callData';
+import { Filters } from '@/hooks/useFilters';
+
+interface OutletContext {
+  filteredData: CallRecord[];
+  filters: Filters;
+}
 
 const CustomerAnalytics = () => {
-  const { filteredData } = useFilters(callData);
+  const { filteredData } = useOutletContext<OutletContext>();
 
   return (
     <div className="space-y-6 sm:space-y-8">

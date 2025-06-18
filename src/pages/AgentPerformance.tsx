@@ -1,14 +1,20 @@
 
 import React from 'react';
-import { callData } from '@/data/callData';
+import { useOutletContext } from 'react-router-dom';
 import AgentPerformanceTable from '@/components/AgentPerformanceTable';
 import AgentTrainingRecommendations from '@/components/AgentTrainingRecommendations';
 import TrainingNeedsMatrix from '@/components/TrainingNeedsMatrix';
 import { TrendingUp, Users, Award, Target } from 'lucide-react';
-import { useFilters } from '@/hooks/useFilters';
+import { CallRecord } from '@/data/callData';
+import { Filters } from '@/hooks/useFilters';
+
+interface OutletContext {
+  filteredData: CallRecord[];
+  filters: Filters;
+}
 
 const AgentPerformance = () => {
-  const { filteredData } = useFilters(callData);
+  const { filteredData } = useOutletContext<OutletContext>();
 
   // Calculate agent metrics
   const totalAgents = [...new Set(filteredData.map(call => call.agentId))].length;
