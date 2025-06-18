@@ -1,179 +1,116 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
 import { callData } from '@/data/callData';
 import KPICards from '@/components/KPICards';
+import SentimentChart from '@/components/SentimentChart';
+import TopicsChart from '@/components/TopicsChart';
 import RetentionActionSuggestions from '@/components/RetentionActionSuggestions';
-import { CalendarDays, Target, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useFilters } from '@/hooks/useFilters';
+import { Activity, TrendingUp, Users, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Overview = () => {
-  const { filters, setFilters, filteredData } = useFilters(callData);
+  const { filteredData } = useFilters(callData);
 
-  const quickStats = {
-    totalCalls: filteredData.length,
-    highRiskCustomers: filteredData.filter(call => call.churnRisk > 0.7).length,
-    agentsNeedingTraining: [...new Set(filteredData.filter(call => call.outcome === 'escalated').map(call => call.agentName))].length,
-    unresolvedCalls: filteredData.filter(call => call.outcome === 'unresolved').length
-  };
+  // Calculate key metrics
+  const totalCalls = filteredData.length;
+  const avgSentiment = filteredData.reduce((sum, call) => {
+    const score = call.sentiment === 'positive' ? 1 : call.sentiment === 'neutral' ? 0.5 : 0;
+    return sum + score;
+  }, 0) / totalCalls;
+  const avgChurnRisk = filteredData.reduce((sum, call) => sum + call.churnRisk, 0) / totalCalls;
+  const resolutionRate = (filteredData.filter(call => call.outcome === 'resolved').length / totalCalls) * 100;
+
+  const quickStats = [
+    {
+      title: 'Total Calls',
+      value: totalCalls.toLocaleString(),
+      icon: Activity,
+      trend: '+12%',
+      trendUp: true,
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      title: 'Avg Sentiment',
+      value: `${(avgSentiment * 100).toFixed(1)}%`,
+      icon: TrendingUp,
+      trend: '+5.2%',
+      trendUp: true,
+      color: 'from-green-500 to-emerald-500'
+    },
+    {
+      title: 'Resolution Rate',
+      value: `${resolutionRate.toFixed(1)}%`,
+      icon: Users,
+      trend: '+2.1%',
+      trendUp: true,
+      color: 'from-purple-500 to-pink-500'
+    },
+    {
+      title: 'Churn Risk',
+      value: `${(avgChurnRisk * 100).toFixed(1)}%`,
+      icon: Clock,
+      trend: '-3.5%',
+      trendUp: false,
+      color: 'from-orange-500 to-red-500'
+    }
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Global Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" />
-            Global Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Date Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="7d">Last 7 Days</SelectItem>
-                <SelectItem value="30d">Last 30 Days</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.agent} onValueChange={(value) => setFilters(prev => ({ ...prev, agent: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Agent" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Agents</SelectItem>
-                {[...new Set(callData.map(call => ({ id: call.agentId, name: call.agentName })))].map(agent => (
-                  <SelectItem key={agent.id} value={agent.id}>{agent.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.policyType} onValueChange={(value) => setFilters(prev => ({ ...prev, policyType: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Policy Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="motor">Motor</SelectItem>
-                <SelectItem value="health">Health</SelectItem>
-                <SelectItem value="travel">Travel</SelectItem>
-                <SelectItem value="home">Home</SelectItem>
-                <SelectItem value="life">Life</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.sentiment} onValueChange={(value) => setFilters(prev => ({ ...prev, sentiment: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sentiment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Sentiments</SelectItem>
-                <SelectItem value="positive">Positive</SelectItem>
-                <SelectItem value="neutral">Neutral</SelectItem>
-                <SelectItem value="negative">Negative</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.outcome} onValueChange={(value) => setFilters(prev => ({ ...prev, outcome: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Outcome" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Outcomes</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="unresolved">Unresolved</SelectItem>
-                <SelectItem value="escalated">Escalated</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.segment} onValueChange={(value) => setFilters(prev => ({ ...prev, segment: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Segment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Segments</SelectItem>
-                <SelectItem value="retail">Retail</SelectItem>
-                <SelectItem value="SME">SME</SelectItem>
-                <SelectItem value="corporate">Corporate</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="mt-4 flex items-center gap-2">
-            <span className="text-sm text-gray-600">Active Filters:</span>
-            {Object.entries(filters).map(([key, value]) => 
-              value !== 'all' && (
-                <Badge key={key} variant="secondary" className="text-xs">
-                  {key}: {value}
-                </Badge>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* KPI Overview */}
-      <KPICards data={filteredData} />
-
-      {/* Quick Actions */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Target className="h-6 w-6" />
-          Retention Actions
+    <div className="space-y-6 sm:space-y-8">
+      {/* Hero Section */}
+      <div className="text-center py-6 sm:py-8">
+        <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-3">
+          Analytics Overview
         </h2>
-        <RetentionActionSuggestions data={filteredData} />
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Real-time insights from customer-agent interactions powered by AI
+        </p>
       </div>
 
-      {/* Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link to="/customer-analytics">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {quickStats.map((stat, index) => (
+          <Card key={index} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Customer Analytics</h3>
-                <ArrowRight className="h-5 w-5 text-gray-400" />
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                  <stat.icon className="h-6 w-6 text-white" />
+                </div>
+                <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+                  stat.trendUp ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
+                }`}>
+                  {stat.trend}
+                </span>
               </div>
-              <p className="text-gray-600 mb-4">Sentiment analysis, churn trends, and customer insights</p>
-              <div className="text-2xl font-bold text-blue-600">{quickStats.highRiskCustomers}</div>
-              <p className="text-sm text-gray-500">High-risk customers</p>
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                <p className="text-gray-600 font-medium">{stat.title}</p>
+              </div>
             </CardContent>
           </Card>
-        </Link>
+        ))}
+      </div>
 
-        <Link to="/agent-performance">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Agent Performance</h3>
-                <ArrowRight className="h-5 w-5 text-gray-400" />
-              </div>
-              <p className="text-gray-600 mb-4">Individual agent metrics and training recommendations</p>
-              <div className="text-2xl font-bold text-green-600">{quickStats.agentsNeedingTraining}</div>
-              <p className="text-sm text-gray-500">Agents needing training</p>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Main KPI Cards */}
+      <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
+        <KPICards data={filteredData} />
+      </div>
 
-        <Link to="/operations">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Operations</h3>
-                <ArrowRight className="h-5 w-5 text-gray-400" />
-              </div>
-              <p className="text-gray-600 mb-4">Call duration, escalations, and operational metrics</p>
-              <div className="text-2xl font-bold text-orange-600">{quickStats.unresolvedCalls}</div>
-              <p className="text-sm text-gray-500">Unresolved calls</p>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-xl">
+          <SentimentChart data={filteredData} />
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-xl">
+          <TopicsChart data={filteredData} />
+        </div>
+      </div>
+
+      {/* Action Suggestions */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-xl">
+        <RetentionActionSuggestions data={filteredData} />
       </div>
     </div>
   );

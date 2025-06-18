@@ -2,9 +2,12 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { BarChart3, Users, TrendingUp, Settings, Home } from 'lucide-react';
+import { BarChart3, Users, TrendingUp, Settings, Home, Menu } from 'lucide-react';
+import { useState } from 'react';
 
 const Layout = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const navItems = [
     { path: '/', label: 'Overview', icon: Home },
     { path: '/customer-analytics', label: 'Customer Analytics', icon: Users },
@@ -13,33 +16,55 @@ const Layout = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Insurance Call Analytics</h1>
-          <p className="text-gray-600">Comprehensive insights from customer-agent interactions</p>
+      <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20 sticky top-0 z-50">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                    Voice Analytics
+                  </h1>
+                  <p className="text-sm text-gray-600 hidden sm:block">AI-powered customer insights</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Menu className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b">
-        <div className="px-6">
-          <div className="flex space-x-8">
+      <nav className={`bg-white/80 backdrop-blur-lg border-b border-white/20 md:block ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:space-x-8 space-y-2 md:space-y-0 py-4 md:py-0">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  `flex items-center gap-3 px-4 py-3 md:py-4 text-sm font-medium rounded-lg md:rounded-none md:border-b-2 transition-all duration-200 ${
                     isActive
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 md:bg-transparent md:border-blue-500'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 md:hover:bg-transparent md:border-transparent md:hover:border-gray-300'
                   }`
                 }
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-5 w-5" />
+                <span>{item.label}</span>
               </NavLink>
             ))}
           </div>
@@ -47,8 +72,10 @@ const Layout = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="p-6">
-        <Outlet />
+      <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
